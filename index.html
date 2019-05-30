@@ -1,0 +1,619 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>鸡你太美</title>
+    <style>
+        *{margin: 0;padding: 0}
+        #cvs{
+            border: 1px solid black;
+        }
+        #canvasDiv{
+            width: 1500px;
+            margin-left: auto;
+            margin-right: auto;
+            margin-top: 50px;
+            box-shadow:0px 0px 30px slateblue;
+        }
+        body{
+            background-image: url("./images/timg.gif");
+            background-size: 1920px 1080px;
+        }
+        #imgCXK{
+            display: none;
+        }
+        #cxkdance{
+            display: none;
+        }
+        #music1{
+
+            width: 100px;
+            height: 50px;
+        }
+    </style>
+
+    <link rel="shortcut icon" href="./favicon.ico" />
+    <link rel="bookmark"href="./favicon.ico" />
+</head>
+<body >
+<div id="canvasDiv"><canvas id="cvs" width="1500" height="700"></canvas></div>
+<img id="imgCXK" src="./images/playball.png" alt="">
+</body>
+<script>
+    var cvs=document.getElementById('cvs');
+    var ctx=cvs.getContext('2d');
+    var gGame=null;
+    function Game() {
+        var _this=this;
+        this.imgCXKLeft=123.75;
+        this.imgCXKTop=0;
+        this.canvasImgCXKLeft=0;
+        this.canvasImgCXKTop=550;
+        this.canvasImgCXKTop2=500;
+        this.imgBasketballLeft=20;
+        this.imgBasketballTop=510;
+        this.diamondsLeft=0;
+        this.diamondsTop=0;
+        this.startTrigger=1;//空格触发后值变成2
+        this.startBallStatue=1;//开始时球跟随cxk的状态
+        this.startBallStatue02=1;//开始时球移动的状态
+        this.speedBall=5;
+        this.speedBallLeft=5;
+        this.ballAngle=0;//球和cxk中点角度
+        this.diamondeWidth=50;//冰块宽度
+        this.diamondeHeight=30;//冰块高度
+        this.grade=0;//分数
+        this.imgdanceCaiNum=1;//danceCai图片索引
+        this.nextbuttonImg='nextup';
+        this.startButtonImgTop=550;
+        this.startButtonImg="imgStartGame";//开始按钮图片名称
+        this.redioBtnImg='redbtn';//红色按钮
+        this.redioBtnStatus=1;//redbtn's statue after onclicked
+        this.redioBtnTimerClock=0;//redbtn's timer after onclicked
+        this.startbtnupstatus=1;//开始游戏按钮弹起前状态
+        this.walkImg=623;
+        this.imgCXKKiss=1;
+        this.startScreenTimer=1;//开始界面计数
+        this.txtHint='请先匹配模式！'; //提示文字
+        this.bowImgIndex=1;//鞠躬图片索引
+        this.updateTimer=1;//update计数
+        this.heroOnclickStatue=1;
+        var arr01=[100,150,200,250,300,350,400,450,500,550,600,650,700,750,800,850,900,950,1000,1050,1100,1150,1200,1250,1300,1350];
+        var arr02=[100,130,160,190,220];
+        var arrDiamonds=[];
+        var count=0;
+        var num=0;//让小方块信息只向数组推一遍
+        /*      //背景音乐播放
+        this.music1play=function () {
+        var audio1 = document.getElementById('music1');
+            if(audio1!==null){
+                if(audio1.paused){
+                    audio1.play();
+                }else{
+                    audio1.pause();
+                }
+            }
+        };*/
+        this.startBGOne=function () {//开始背景
+            ctx.clearRect(0,0,cvs.width,cvs.height);
+            ctx.beginPath();
+            ctx.fillStyle='#312a2a';
+            ctx.fillRect(0,0,1500,700);
+            ctx.stroke();
+        };
+        this.startButton=function () {//生成开始按钮
+            ctx.beginPath();
+            var imgstartGame=new Image();
+            imgstartGame.src="./images/"+_this.startButtonImg+".png";
+            ctx.shadowColor="";
+            ctx.shadowBlur=0;
+            ctx.shadowOffsetX=0;
+            ctx.shadowOffsetY=0;
+            ctx.strokeStyle = 'black';
+            ctx.drawImage(imgstartGame,0,0,283,79,610,_this.startButtonImgTop,283,79);
+            ctx.stroke();
+        };
+        this.drawTrainee01=function () {//画练习生1
+            var traineeImg01=new Image();
+            traineeImg01.src='./images/HERO/sing.png';
+            ctx.beginPath();
+                ctx.shadowColor="red";
+            if(_this.redioBtnTimerClock>=0&&_this.redioBtnTimerClock<=80||_this.redioBtnTimerClock>=211&&_this.redioBtnTimerClock<=240||_this.redioBtnTimerClock>=341&&_this.redioBtnTimerClock<=400){
+                ctx.shadowColor = "blue";
+            }
+                ctx.shadowBlur=20;
+                ctx.shadowOffsetX=0;
+                ctx.shadowOffsetY=10;
+            ctx.drawImage(traineeImg01,0,0,336,336,200,100,200,200);
+            ctx.stroke();
+
+        };
+        this.drawTrainee02=function () {//画练习生2
+            var traineeImg02=new Image();
+            traineeImg02.src='./images/HERO/rap.png';
+            ctx.beginPath();
+            ctx.shadowColor = "red";
+            if(_this.redioBtnTimerClock>=81&&_this.redioBtnTimerClock<=140||_this.redioBtnTimerClock>=241&&_this.redioBtnTimerClock<=270||_this.redioBtnTimerClock>=401&&_this.redioBtnTimerClock<=480) {
+            ctx.shadowColor = "blue";
+            }
+                ctx.shadowBlur = 20;
+                ctx.shadowOffsetX = 0;
+                ctx.shadowOffsetY = 10;
+            ctx.drawImage(traineeImg02,0,0,336,336,500,100,200,200);
+            ctx.stroke();
+        };
+        this.drawTrainee03=function () {//画练习生3
+            var traineeImg03=new Image();
+            traineeImg03.src='./images/HERO/CXK.png';
+            ctx.beginPath();
+                ctx.shadowColor = "red";
+            if(_this.redioBtnTimerClock>=141&&_this.redioBtnTimerClock<=180||_this.redioBtnTimerClock>=271&&_this.redioBtnTimerClock<=300||_this.redioBtnTimerClock>=481) {
+                ctx.shadowColor = "blue";
+            }
+                ctx.shadowBlur = 20;
+                ctx.shadowOffsetX = 0;
+                ctx.shadowOffsetY = 10;
+
+            ctx.drawImage(traineeImg03,0,0,336,336,800,100,200,200);
+            ctx.stroke();
+        };
+        this.drawTrainee04=function () {//画练习生4
+            var traineeImg04=new Image();
+            traineeImg04.src='./images/HERO/LYL.png';
+            ctx.beginPath();
+                ctx.shadowColor = "red";
+            if(_this.redioBtnTimerClock>=181&&_this.redioBtnTimerClock<=210||_this.redioBtnTimerClock>=301&&_this.redioBtnTimerClock<=340) {
+                ctx.shadowColor = "blue";
+            }
+                ctx.shadowBlur = 20;
+                ctx.shadowOffsetX = 0;
+                ctx.shadowOffsetY = 10;
+            ctx.drawImage(traineeImg04,0,0,336,336,1100,100,200,200);
+            ctx.stroke();
+        };
+        this.drawRedioBtn=function () {//抽奖按钮
+            ctx.beginPath();
+            var rediobtn01=new Image();
+            rediobtn01.src='./images/'+_this.redioBtnImg+'.png';
+            ctx.shadowColor="";
+            ctx.shadowBlur=0;
+            ctx.shadowOffsetX=0;
+            ctx.shadowOffsetY=0;
+            ctx.strokeStyle = 'black';
+            ctx.drawImage(rediobtn01,0,0,169,166,700,350,100,100);
+            ctx.stroke();
+        };
+        this.txtDrawRedio=function () {//未按按钮提示
+            ctx.beginPath();
+            ctx.font='20px Arial';
+            ctx.shadowColor="";
+            ctx.shadowBlur=0;
+            ctx.shadowOffsetX=0;
+            ctx.shadowOffsetY=0;
+            ctx.fillStyle='#fff';
+            ctx.fillText(_this.txtHint,850,430);
+            ctx.fill();
+        };
+        this.txtCloseCXK=function () {
+            ctx.beginPath();
+            ctx.font='20px Arial';
+            ctx.shadowColor="";
+            ctx.shadowBlur=0;
+            ctx.shadowOffsetX=0;
+            ctx.shadowOffsetY=0;
+            ctx.fillStyle='#fff';
+            ctx.fillText('你选择了蔡徐坤！！！',850,430);
+            ctx.fill();
+        };
+        this.txtOnclickThisBtn=function () {
+            ctx.beginPath();
+            ctx.font='20px Arial';
+            ctx.shadowColor="";
+            ctx.shadowBlur=0;
+            ctx.shadowOffsetX=0;
+            ctx.shadowOffsetY=0;
+            ctx.fillStyle='#fff';
+            ctx.fillText('请点击此按钮===>',490,400);
+            ctx.fill();
+        };
+        /*this.drawKissCXK=function () {//弹出kissCXK
+            var imgKissCXK=new Image();
+            imgKissCXK.src='./images/cxkKiss/'+_this.imgCXKKiss+'.png';
+                ctx.clearRect(550,0,400,400);
+                ctx.fillStyle='#312a2a';
+                ctx.fillRect(550,0,400,400);
+                ctx.beginPath();
+                ctx.shadowColor="";
+                ctx.shadowBlur=0;
+                ctx.shadowOffsetX=0;
+                ctx.shadowOffsetY=0;
+                ctx.drawImage(imgKissCXK,0,0,700,700,550,0,400,400);
+                ctx.stroke();
+        };*/
+        this.otherTxtInStartScreen=function () {//开始窗口的其他文字
+
+            ctx.beginPath();
+            ctx.font='50px 华文琥珀';
+            ctx.shadowColor="#000000";
+            ctx.shadowBlur=10;
+            ctx.shadowOffsetX=0;
+            ctx.shadowOffsetY=10;
+            ctx.fillStyle='#7efe00';
+            ctx.fillText('请选择一个练习生',550,50);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.font='20px Arial';
+            ctx.shadowColor="";
+            ctx.shadowBlur=0;
+            ctx.shadowOffsetX=0;
+            ctx.shadowOffsetY=0;
+            ctx.fillStyle='#fff';
+            ctx.fillText('温馨提醒：爱坤人士请勿玩此游戏，本游戏不存在商业用途，纯属个人娱乐。(^_^)',400,695);
+            ctx.fill();
+        };
+        this.startScreen=function () { //开始场景
+            _this.startBGOne();
+            _this.drawTrainee01();
+            _this.drawTrainee02();
+            _this.drawTrainee03();
+            _this.drawTrainee04();
+            _this.startButton();
+            _this.drawRedioBtn();
+            _this.otherTxtInStartScreen();
+            window.requestAnimationFrame(_this.startScreen);
+            _this.startScreenTimer++;
+           /* if(_this.startScreenTimer%2==0){
+                _this.imgCXKKiss++;
+            }
+            if(_this.imgCXKKiss==50){
+                _this.imgCXKKiss=1;
+            }*/
+           if(_this.heroOnclickStatue==2){
+               _this.txtOnclickThisBtn();
+           };
+            if(_this.redioBtnStatus==2){
+                _this.redioBtnTimerClock++;
+            };
+            if(_this.redioBtnTimerClock>=490){
+                //这里弹出CXK
+                //_this.drawKissCXK();
+                _this.txtHint='你选择了蔡徐坤！！！';
+                _this.txtCloseCXK();
+            }
+            if( _this.startbtnupstatus==3){
+                _this.txtDrawRedio();
+            }
+            document.onmousemove=function () {
+                    document.onmousedown = function (even) {
+                        var startbtnLeft=even.pageX-cvs.offsetLeft;
+                        var startbtnTop=even.pageY-cvs.offsetTop;
+                        var RediobtnLeft=startbtnLeft;
+                        var RediobtnTop=startbtnTop;
+                        var heroImgLeft=startbtnLeft;
+                        var heroImgTop=startbtnTop;
+                        if (startbtnLeft >= 610 && startbtnLeft <= 893 && startbtnTop >= 550 && startbtnTop <= 629) {
+                            _this.startButtonImg = 'imgStartGame02';
+                            _this.startButtonImgTop=555;
+                            if(_this.redioBtnStatus==2){
+                                _this.startbtnupstatus=2;
+                            }
+                            document.onmouseup = function () {
+                                _this.startButtonImg = 'imgStartGame';
+                                _this.startButtonImgTop=550;
+                                if(_this.redioBtnStatus==2&&_this.startbtnupstatus==2){//先按红再按开始才触发的逻辑
+                                    if(_this.redioBtnTimerClock>=490){
+                                        _this.update();
+                                    }else{
+                                        _this.txtHint='请等待匹配完成！';
+                                        _this.startbtnupstatus=3;
+                                    }
+                                }else {
+                                    _this.startbtnupstatus=3;
+                                }
+                            }
+                        }
+                        //红色按钮按下
+                        if (RediobtnLeft >= 700 && RediobtnLeft <= 800 && RediobtnTop >= 350 && RediobtnTop <= 450) {
+                            _this.redioBtnImg ='yellowbtn';
+                            //开始抽签
+                            _this.redioBtnStatus=2;
+                            _this.heroOnclickStatue=3;
+                        }
+                        if(heroImgLeft>=200 && heroImgLeft<=1100 && heroImgTop>=100 && heroImgTop<=300){
+                            if(_this.heroOnclickStatue==1){
+                            _this.heroOnclickStatue=2;
+                            }
+                        }
+                    }
+            }
+        };
+        this.drawJntmBg=function () {//背景图2
+            var imgBG=new Image();
+            imgBG.src='./images/jntmBG.png';
+            ctx.beginPath();
+            ctx.drawImage(imgBG,0,0,480,264,0,0,1500,700);
+            ctx.stroke();
+        };
+        this.drawCXK=function () {//画蔡徐坤
+            if(_this.walkImg==665){
+                _this.walkImg=623;
+            }
+            var imgCXK=new Image();
+            imgCXK.src='./images/walk/'+_this.walkImg+'.png';
+            ctx.beginPath();
+            ctx.shadowColor="";
+            ctx.shadowBlur=0;
+            ctx.shadowOffsetX=0;
+            ctx.shadowOffsetY=0;
+            ctx.drawImage(imgCXK,_this.imgCXKLeft,_this.imgCXKTop,744,720,_this.canvasImgCXKLeft,_this.canvasImgCXKTop,100/*/249*123.75*/,100);
+            //ctx.fillStyle='black';
+            //ctx.fillRect(_this.canvasImgCXKLeft,_this.canvasImgCXKTop,100/*/249*123.75*/,100);
+            ctx.stroke();
+        };
+        this.drawBasketball=function () {//画篮球
+            var imgBasketball=new Image();
+            imgBasketball.src='./images/basketball.png';
+            ctx.beginPath();
+            ctx.shadowColor="";
+            ctx.shadowBlur=0;
+            ctx.shadowOffsetX=0;
+            ctx.shadowOffsetY=0;
+            ctx.fillStyle='imgBasketball';
+            ctx.drawImage(imgBasketball,0,0,450,449,_this.imgBasketballLeft,_this.imgBasketballTop,20,20);
+            ctx.arc(_this.imgBasketballLeft+10,_this.imgBasketballTop+10,10,0,Math.PI/180*360);
+            ctx.stroke();
+        };
+        this.drawGrade=function () { //画分数
+            ctx.beginPath();
+            ctx.font='bolder 30px Arial';
+            ctx.shadowColor="";
+            ctx.shadowBlur=0;
+            ctx.shadowOffsetX=0;
+            ctx.shadowOffsetY=0;
+            ctx.fillStyle='#673ab7';
+            ctx.fillText('得分：',1/2*cvs.width-20,30);
+            ctx.fillText(_this.grade,1/2*cvs.width-10+70,30);
+            ctx.fill();
+        };
+        this.drawDiamondsArr=function () {//画小方块
+            if(num==0){
+            for(var i=0;i<arr01.length;i++){
+                for(var j=0;j<arr02.length;j++){
+                    arrDiamonds.push([arr01[i],arr02[j],_this.diamondeWidth,_this.diamondeHeight]);
+                }
+                }
+            };
+            num++;
+        };
+        _this.drawDiamondsArr();
+        this.drawDiamonds=function () {//小方块样式
+            ctx.beginPath();
+            ctx.shadowColor="#ff0000";
+            ctx.shadowBlur=20;
+            ctx.shadowOffsetX=0;
+            ctx.shadowOffsetY=10;
+            ctx.strokeStyle='#2196f3';
+            ctx.fillStyle='#35d7c8';
+            for(var u=0;u<arrDiamonds.length;u++){
+                ctx.rect(arrDiamonds[u][0],arrDiamonds[u][1],arrDiamonds[u][2],arrDiamonds[u][3]);
+            }
+            ctx.fill();
+            ctx.stroke();
+        };
+        this.imgRefreshRate=function () {//蔡徐坤dance
+          var timer=setInterval(function () {
+              _this.imgdanceCaiNum++;
+          },80);
+        };
+        _this.imgRefreshRate();
+        this.goThough=function () { //游戏通过
+            if(_this.imgdanceCaiNum==200){
+                _this.imgdanceCaiNum=1;
+            }
+            if(_this.grade==130){
+                ctx.clearRect(0,0,cvs.width,cvs.height);
+                _this.drawJntmBg();
+                var danceCXK=new Image();
+                danceCXK.src='./images/danceCai/'+_this.imgdanceCaiNum+'.png';
+                var buttonImg=new Image();
+                buttonImg.src='./images/'+_this.nextbuttonImg+'.png';
+                    ctx.beginPath();
+                    ctx.drawImage(danceCXK,0,0,180,320,570,30,360,640);
+                    ctx.drawImage(buttonImg,0,0,156,50,1000,500,300,100);
+                    ctx.stroke();
+            }
+        };
+        /*this.bowImgCXK=function () {//鞠躬CXK
+
+            ctx.beginPath();
+            var bowImg=new Image();
+            bowImg.src='./images/bow/'+_this.bowImgIndex+'.png';
+            ctx.shadowColor="";
+            ctx.shadowBlur=0;
+            ctx.shadowOffsetX=0;
+            ctx.shadowOffsetY=0;
+            ctx.drawImage(bowImg,0,0,1280,720,350,100,800,500);
+            ctx.stroke();
+        };*/
+        this.update=function () {
+            //关闭第一段音乐
+            _this.drawJntmBg();
+            _this.drawDiamonds();
+            _this.drawBasketball();
+            _this.drawGrade();
+            count++;
+            _this.drawCXK();
+            _this.walkImg++;
+            window.requestAnimationFrame(_this.update);
+            document.onkeydown=function (ev) {
+                if(ev.keyCode==37&&_this.startBallStatue==1){
+                    if(_this.canvasImgCXKLeft>0){
+                        _this.canvasImgCXKLeft-=20;
+                        _this.imgBasketballLeft-=20;
+                    }else {
+                        _this.canvasImgCXKLeft=0;
+                        _this.imgBasketballLeft=20;
+                    }
+                }
+                if(ev.keyCode==39&&_this.startBallStatue==1){
+                    if(_this.canvasImgCXKLeft<1500-/*100/249*123.75*/100){
+                        _this.canvasImgCXKLeft+=20;
+                        _this.imgBasketballLeft+=20;
+
+                    }else {
+                        _this.canvasImgCXKLeft=1500-100/*/249*123.75*/;
+                        _this.imgBasketballLeft=1500-100/*/249*123.75*/+22;
+                    }
+                }
+                if(ev.keyCode==32&&_this.startTrigger==1){
+                    _this.startTrigger=2;
+                    _this.startBallStatue=2;
+                }
+                if(ev.keyCode==37&&_this.startBallStatue==2){
+                    if(_this.canvasImgCXKLeft>0){
+                        _this.canvasImgCXKLeft-=20;
+                    }else {
+                        _this.canvasImgCXKLeft=0;
+                    }
+                }
+                if(ev.keyCode==39&&_this.startBallStatue==2){
+                    if(_this.canvasImgCXKLeft<1500-100/*/249*123.75*/){
+                        _this.canvasImgCXKLeft+=20;
+                    }else {
+                        _this.canvasImgCXKLeft=1500-100/*/249*123.75*/;
+                    }
+                }
+            };
+            //球left和top之间的关系
+            if(_this.startTrigger==2){
+                _this.imgBasketballTop-=_this.speedBall; //高度减少
+                _this.imgBasketballLeft+=(Math.sqrt(3)*_this.speedBallLeft/3);
+            }
+            //球在上边界
+            if(_this.imgBasketballTop<=0){
+                _this.speedBall=_this.speedBall*-1;
+                _this.speedBallLeft=_this.speedBallLeft;
+            }
+            //球在左右边界
+            if(_this.imgBasketballLeft<=0||_this.imgBasketballLeft>=cvs.width-20){
+                _this.speedBall=_this.speedBall;
+                _this.speedBallLeft=_this.speedBallLeft*-1;
+            }
+            //球在cxk头上的时候,反弹
+             if(_this.imgBasketballLeft>=_this.canvasImgCXKLeft-10&&_this.imgBasketballLeft<=_this.canvasImgCXKLeft+100/*/249*123.75*/){
+                 if(_this.imgBasketballTop+20>=550&&_this.imgBasketballTop+20<=600){
+                     _this.speedBall=_this.speedBall*-1;
+                 }
+             }
+             if(_this.imgBasketballTop>=(cvs.height-20)){
+                 _this.speedBall= _this.speedBall;
+                 _this.speedBallLeft=_this.speedBallLeft;
+             }
+             //球在cxk左右边界的时候
+           /* if(_this.imgBasketballLeft>=_this.canvasImgCXKLeft-20&&_this.imgBasketballTop>=_this.canvasImgCXKTop&&_this.imgBasketballTop<=_this.canvasImgCXKTop+100||_this.imgBasketballLeft<=_this.canvasImgCXKLeft+100&&_this.imgBasketballTop>=_this.canvasImgCXKTop&&_this.imgBasketballTop<=_this.canvasImgCXKTop+100){
+                _this.speedBall=_this.speedBall;
+                //_this.speedBallLeft=_this.speedBallLeft*-1;
+            }*/
+          /*  _this.updateTimer++;
+            if( _this.updateTimer%3==0){
+                _this.bowImgIndex++;
+            }*/
+             //没接住球
+/*
+            if(_this.bowImgIndex==54){
+                _this.bowImgIndex=1;
+            };*/
+            if(_this.imgBasketballTop>=cvs.height-20){
+                ctx.clearRect(0,0,cvs.width,cvs.height);
+                ctx.beginPath();
+                _this.drawJntmBg();
+                //_this.bowImgCXK();
+                ctx.beginPath();
+                ctx.fillStyle='#35d7c8';
+                ctx.font='80px Arial';
+                ctx.fillText('蔡徐坤，你的球掉了',cvs.width/4,cvs.height/4);
+                ctx.fill();
+            }
+            //小球撞方块事件
+            for(var k=0;k<arrDiamonds.length;k++){
+                //方块上下判断
+                if((_this.imgBasketballLeft+10)>=arrDiamonds[k][0]&&(_this.imgBasketballLeft+10)<=arrDiamonds[k][0]+50){
+                    //小球撞方块底部的时候
+                    if((_this.imgBasketballTop+10)<=(arrDiamonds[k][1]+30+10)&&(_this.imgBasketballTop+10)>=(arrDiamonds[k][1]+30)){
+                        _this.speedBall=_this.speedBall*-1;
+                        _this.speedBallLeft=_this.speedBallLeft;
+                       /* arrDiamonds[k][2]=0;
+                        arrDiamonds[k][3]=0;*/
+                        arrDiamonds[k][0]=-100;
+                        arrDiamonds[k][1]=-100;
+                        _this.grade=_this.grade+1;
+                    }
+                    //小球撞方块顶部的时候
+                    if((_this.imgBasketballTop+10)>=(arrDiamonds[k][1]-10)&&(_this.imgBasketballTop+10)<=(arrDiamonds[k][1])){
+                        _this.speedBall=_this.speedBall*-1;
+                        _this.speedBallLeft=_this.speedBallLeft;
+                        arrDiamonds[k][0]=-100;
+                        arrDiamonds[k][1]=-100;
+                        _this.grade=_this.grade+1;
+                    }
+                }
+                //小球撞方块左右的时候
+                if((_this.imgBasketballTop+10)<=(arrDiamonds[k][1]+30)&&(_this.imgBasketballTop+10)>=(arrDiamonds[k][1])){
+                    //左
+                    if((_this.imgBasketballLeft+10)>=(arrDiamonds[k][0]-10)&&(_this.imgBasketballLeft+10)<=(arrDiamonds[k][0])){
+                        _this.speedBall=_this.speedBall;
+                        _this.speedBallLeft=_this.speedBallLeft*-1;
+                        arrDiamonds[k][0]=-100;
+                        arrDiamonds[k][1]=-100;
+                        _this.grade=_this.grade+1;
+                    }
+                    if((_this.imgBasketballLeft+10)<=(arrDiamonds[k][0]+50+10)&&(_this.imgBasketballLeft+10)>=(arrDiamonds[k][0]+50)){
+                        _this.speedBall=_this.speedBall;
+                        _this.speedBallLeft=_this.speedBallLeft*-1;
+                        arrDiamonds[k][0]=-100;
+                        arrDiamonds[k][1]=-100;
+                        _this.grade=_this.grade+1;
+                    }
+                }
+                //小球撞到方块四个对角的时候
+                //左上
+                if((_this.imgBasketballLeft+10)==(arrDiamonds[k][0]-10)&&(_this.imgBasketballTop+10)==(arrDiamonds[k][1]-10)){
+                    _this.speedBall=Math.abs(_this.speedBall)*-1;
+                    _this.speedBallLeft=Math.abs(_this.speedBallLeft)*-1;
+                };
+                //右上
+                if((_this.imgBasketballLeft+10)==(arrDiamonds[k][0]+50+10)&&(_this.imgBasketballTop+10)==(arrDiamonds[k][1]-10)){
+                    _this.speedBall=Math.abs(_this.speedBall)*-1;
+                    _this.speedBallLeft=Math.abs(_this.speedBallLeft);
+                };
+                //左下
+                if((_this.imgBasketballLeft+10)==(arrDiamonds[k][0]-10)&&(_this.imgBasketballTop+10)==(arrDiamonds[k][1]+30+10)){
+                    _this.speedBall=Math.abs(_this.speedBall);
+                    _this.speedBallLeft=Math.abs(_this.speedBallLeft)*-1;
+                };
+
+                //右下
+                if((_this.imgBasketballLeft+10)==(arrDiamonds[k][0]+50+10)&&(_this.imgBasketballTop+10)==(arrDiamonds[k][1]+30+10)){
+                    _this.speedBall=Math.abs(_this.speedBall);
+                    _this.speedBallLeft=Math.abs(_this.speedBallLeft);
+                };
+            }
+            //游戏通关
+            _this.goThough();
+            //鼠标按下nextbutton图片改变
+            document.onmousedown=function (eve) {
+                var nextbtnLeft=eve.pageX-cvs.offsetLeft;
+                var nextbtnTop=eve.pageY-cvs.offsetTop;
+                if(nextbtnLeft>=1000&&nextbtnLeft<=1300&&nextbtnTop>=500&&nextbtnTop<=600){
+                    _this.nextbuttonImg='nextdown';
+                }
+                document.onmouseup=function () {
+                    _this.nextbuttonImg='nextup';
+                }
+            }
+        };
+    }
+        gGame=new Game();
+        gGame.startScreen();
+</script>
+</html>
