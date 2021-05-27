@@ -1,2 +1,2 @@
-# basketballPlayer
-# basketballPlayer
+##  篮球练习生H5小游戏
+## 基于canvas开发
